@@ -124,6 +124,16 @@ update_tmux() {
 	check_create_link ${TOOL_DIR}/dotfiles/.tmux.conf ~/.tmux.conf
 }
 
+update_date() {
+	local date time
+	echo "input date and time in below format: YYYY-MM-DD HH:MM:SS"
+	read date time
+	echo "date $date $time"
+	sudo timedatectl set-timezone Asia/Kolkata
+	sudo date --set="$date $time"
+	sudo hwclock --systohc
+}
+
 setup() {
 	if [[ $# -lt 1 ]]; then
 		usage
@@ -141,6 +151,9 @@ setup() {
 			;;
 		tmux )
 			update_tmux
+			;;
+		date )
+			update_date
 			;;
 		* )
 			usage
