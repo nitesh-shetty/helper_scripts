@@ -27,4 +27,4 @@ function lkml_mutt() {
 	neomutt -F ~/.mail/lore/muttrc
 }
 
-alias mymutt="neomutt -F ~/.lkml/muttrc"
+alias mymutt="cdl && neomutt -F ~/.lkml/muttrc"
