@@ -1,0 +1,43 @@
+#-----------------------------------------------
+# Vi Key Bindings
+#-----------------------------------------------
+
+# Moving around
+bind attach,browser,index	g	noop
+bind attach,browser,index	gg	first-entry
+bind attach,browser,index	G	last-entry
+bind pager			g	noop
+bind pager			gg	top
+bind pager			G	bottom
+bind pager			k	previous-line
+bind pager			j	next-line
+
+bind pager,index		d	noop
+bind pager,index		dd	delete-message
+
+# Mail and reply
+bind pager,index		R	group-reply
+
+# Threads
+bind pager,index		dT	delete-thread
+bind pager,index		dt	delete-subthread
+bind pager,index		gt	next-thread
+bind pager,index		gT	previous-thread
+bind index			za	collapse-thread
+bind index			zA	collapse-all
+
+# Sidebar keybinds
+bind index,pager		\Cp	sidebar-prev
+bind index,pager		\Cn	sidebar-next
+bind index,pager		\Co	sidebar-open
+bind index,pager		b	sidebar-toggle-visible
+
+# Keybinds
+# Start query by hitting '\' (backslash key)
+bind index \\ vfolder-from-query
+
+# launch sync script when pressing 'S' (capital S)
+macro index S "<shell-escape>lkml_dir/sync.sh 2>&1<enter>" "sync email and notmuch"
+macro index,pager H "<enter-command>unset wait_key<enter><enter-command>set pipe_decode<enter><tag-prefix><pipe-entry>from-mutt<enter><enter-command>uset pipe_decode<enter><enter-command>set wait_key<enter>" "output git patches"
+
+macro index,pager A '| git am '\n

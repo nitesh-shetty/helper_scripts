@@ -1,0 +1,27 @@
+[retriever]
+type = SimpleIMAPSSLRetriever
+server = imap.gmail.com
+port = 993
+username = user_email@gmail.com
+
+[destination]
+type = Maildir
+path = lkml_dir/mail/
+
+[options]
+# only download new emails
+read_all = false
+
+# do not alter status of emails on server
+delevered_to = false
+
+# ditto
+received = false
+
+# do not delete emails on server
+delete = false
+
+# max downloaded each time; use 0 for no limit
+max_messages_per_session = 0
+
+message_log = ~/.getmail/log

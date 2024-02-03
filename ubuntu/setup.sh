@@ -11,7 +11,7 @@ usage() {
 	Helper scripts.\n
 
 	command:\n\t
-		alias		: Setup alias.\n\t
+		alias		: Update alias.\n\t
 		nvim		: Update neovim.\n\t
 		tmux		: Update tmux.\n\t
 		date		: Update date and time.\n\t
@@ -134,6 +134,87 @@ update_date() {
 	sudo hwclock --systohc
 }
 
+update_lei() {
+	local lkml_dir=${HOME}/.lkml
+	local user_email first_name second_name smtp_secret
+
+	if ! command -v lei &> /dev/null ; then
+		echo "lei could not be found"
+		sudo apt install libsearch-xapian-perl python3-pip gnome-keyring -y
+		pip install keyring
+		cd ${TOOL_DIR}
+		git clone https://public-inbox.org/public-inbox.git
+		cd public-inbox-mda
+		perl Makefile.PL
+		make
+		sudo make install
+	fi
+	if ! command -v neomutt &> /dev/null ; then
+		echo "neomutt could not be found"
+		sudo apt install neomutt -y
+	fi
+	if ! command -v notmuch &> /dev/null ; then
+		echo "notmuch could not be found"
+		sudo apt install notmuch -y
+	fi
+
+	if [ ! -d "${lkml_dir}/mail" ]; then
+		mkdir -p ${lkml_dir}/mail
+	fi
+	echo "input user email and name name in below format: email first_name second_name smtp_secret"
+	read user_email first_name second_name smtp_secret
+	echo "$user_email $first_name $second_name $smtp_secret"
+
+	cd ${SCRIPT_DIR}
+	cp config_files/muttrc ${lkml_dir}/
+	sed -i "s|lkml_dir|${lkml_dir}|g" $lkml_dir/muttrc
+	sed -i -e "s/user_email/${user_email}/g" $lkml_dir/muttrc
+	sed -i -e "s/first_name/${first_name}/g" $lkml_dir/muttrc
+	sed -i -e "s/second_name/${second_name}/g" $lkml_dir/muttrc
+	sed -i -e "s/smtp_secret/${smtp_secret}/g" $lkml_dir/muttrc
+
+	cp config_files/vim-keys.rc ${lkml_dir}/
+	sed -i "s|lkml_dir|${lkml_dir}|g" $lkml_dir/vim-keys.rc
+
+	cp config_files/notmuch.rc ${lkml_dir}/
+	sed -i "s|lkml_dir|${lkml_dir}|g" $lkml_dir/notmuch.rc
+	sed -i -e "s/user_email/${user_email}/g" $lkml_dir/notmuch.rc
+	sed -i -e "s/first_name/${first_name}/g" $lkml_dir/notmuch.rc
+	sed -i -e "s/second_name/${second_name}/g" $lkml_dir/notmuch.rc
+	check_create_link ${lkml_dir}/notmuch.rc ~/.notmuch-config
+	cp config_files/notmuch-tag-rules ${lkml_dir}/notmuch-tag-rules
+	sed -i -e "s/user_email/${user_email}/g" $lkml_dir/notmuch-tag-rules
+
+	cp config_files/sync.sh ${lkml_dir}/
+	sed -i "s|lkml_dir|${lkml_dir}|g" ${lkml_dir}/sync.sh
+
+	lei q -I https://lore.kernel.org/all -o ${lkml_dir}/mail --threads \
+		--dedupe=mid \
+		'(tc:linux-linux OR tc:linux-block OR tc:linux-fsdevel OR tc:io-uring) AND rt:1.days.ago..'
+	lei up ${lkml_dir}/mail
+
+
+	# if ! command -v getmail &> /dev/null ; then
+	# 	echo "getmail could not be found"
+	# 	sudo apt install getmail6 -y
+	# fi
+	#
+	# if [ ! -d "${HOME}/.getmail" ]; then
+	# 	mkdir -m 700 ${HOME}/.getmail
+	# fi
+	# cp config_files/getmailrc ${lkml_dir}/
+	# sed -i "s|lkml_dir|${lkml_dir}|g" $lkml_dir/getmailrc
+	# sed -i -e "s/user_email/${email}/g" $lkml_dir/getmailrc
+	# check_create_link ${lkml_dir}/getmailrc ${HOME}/.getmail/getmail
+	# getmail
+
+	notmuch new
+	notmuch tag --batch --input=${lkml_dir}/notmuch-tag-rules
+	notmuch tag --remove-all +deleted tag:deleted
+
+	echo "Please append below in bashrc alias mymutt=\"neomutt -F $lkml_dir/muttrc\""
+}
+
 setup() {
 	if [[ $# -lt 1 ]]; then
 		usage
@@ -154,6 +235,9 @@ setup() {
 			;;
 		date )
 			update_date
+			;;
+		lei )
+			update_lei
 			;;
 		* )
 			usage

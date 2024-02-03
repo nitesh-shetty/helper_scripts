@@ -1,0 +1,123 @@
+## for more information: man neomuttrc
+#
+## paths
+set folder = "lkml_dir/mail"
+set spoolfile = "lkml_dir/mail"
+set header_cache = "lkml_dir/mail/cache/headers"
+set message_cachedir = "lkml_dir/mail/cache/message"
+set mailcap_path = "lkml_dir/mail/mailcap"
+set tmpdir = "lkml_dir/mail/tmp"
+
+## Basic settings
+set from = "user_email@gmail.com"
+set realname = "first_name second_name"
+# set imap_user = "user_email@gmail.com"
+set smtp_url = "smtps://user_email@smtp.gmail.com:465/"
+set smtp_pass = "smtp_secret"
+set ssl_starttls = yes
+set ssl_force_tls = yes
+
+set wait_key = no
+set mbox_type = Maildir
+set timeout = 3
+set mail_check = 120
+set delete
+set quit
+set thorough_search
+set mail_check_stats
+set rfc2047_parameters = yes
+unset confirmappend
+unset move
+unset mark_old
+unset beep_new
+
+## Compose view options
+set envelope_from
+set edit_headers
+set fast_reply
+set askcc
+set fcc_attach
+set forward_format = "FWD: %s"
+set forward_decode
+set attribution = "On %d, %n wrote:"
+set reply_to
+set reverse_name
+set include
+set forward_quote
+set editor='nvim + -c "set textwidth=72" -c "set wrap" -c "set nocp" -c "?^$"'
+set text_flowed
+unset sig_dashes
+unset mime_forward
+
+# status bar, date format, etc.
+set status_chars = " *%A"
+set status_format = "[Folder: %f ] [%r%m messages%?n? (%n new)?%?d? (%d to delete)?%?t? (%t tagged)? ]%>-%?p?( %p postponed )?"
+
+# show date in year/month/day hour:minute format
+set date_format = "%d/%m/%y %I:%M%p"
+set index_format = "[%Z %?X?A&-? %D %-20.20F %s"
+set sort = threads
+set sort_aux = reverse-date
+set uncollapse_jump
+set sort_re
+set quote_regexp = "^( {0,4}[>|:#%]| {0,4}[a-z0-9]+[>|]+)+"
+set send_charset = "utf-8:iso-8859-1:us-ascii"
+set charset = "utf-8"
+#check more on reply_regexp
+# set reply_regexp = "^((\
+# \\[wvware - help\\][\
+# \\[[a-z][a-z0-9 :-]+[0-9]\\]|\
+# (\\(fwd\\))|\
+# (re(\\(fwd\\))|\
+# (re(\\[[0-9]\\])?|aw|fw|fwd|\\?\\?|\n
+# )[ \t]*)+"
+
+# Pager View Options
+set pager_index_lines = 5
+set pager_context = 3
+set pager_stop
+set menu_scroll
+set tilde
+unset markers
+
+# email headers and attachments
+ignore *
+unignore from: to: cc: bcc: date: subject:
+unhdr_order *
+hdr_order *
+hdr_order from: to: cc: bcc: date: subject:
+# preferred order if content is encoded in multiple formats
+alternative_order text/plain text/enriched text/html
+# automatically try to view this type of content
+auto_view text/html
+
+# sidebar patch config
+set sidebar_visible
+set sidebar_short_path
+set sidebar_width = 36
+set sidebar_divider_char = ' | '
+set sidebar_indent_string = '  ''
+set sidebar_next_new_wrap = no
+set sidebar_format = "%D%?F? [%F]?%* %?N?%N/?%S"
+
+# Help for patches
+set pipe_split = yes
+
+## notmuch settings
+set nm_query_type = "threads"
+# when set, neomutt will use the first virtual mailbox as a spoolfile
+set virtual_spoolfile = yes
+
+exec collapse-all
+
+# Notmuch mailboxes
+# Query help: https://raw.githubsercontent.com/karelzak/mutt-kz/master/README.notmuch
+virtual-mailboxes "  Me" "notmuch://?query=tag:me"
+virtual-mailboxes "  linux-nvme" "notmuch://?query=tag:linux-nvme"
+virtual-mailboxes "  linux-block" "notmuch://?query=tag:linux-block"
+virtual-mailboxes "  linux-fsdevel" "notmuch://?query=tag:linux-fsdevel"
+virtual-mailboxes "  io-uring" "notmuch://?query=tag:io-uring"
+virtual-mailboxes "  All" "notmuch://?query=tag:inbox"
+
+# Keybinds
+source vim-keys.rc
