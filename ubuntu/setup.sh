@@ -104,6 +104,26 @@ update_nvim() {
 	update_npm
 }
 
+update_tmux() {
+	if ! command -v tmux &> /dev/null ; then
+		sudo apt install tmux -y
+	fi
+	if [ -d "${HOME}/.tmux/plugins/tpm" ]; then
+		cd ~/.tmux/plugins/tpm
+		git pull
+	else
+		git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugin/tpm
+	fi
+	if [ -d "${TOOL_DIR}/dotfiles" ]; then
+		cd ${TOOL_DIR}/dotfiles
+		git pull
+	else
+		cd $TOOL_DIR
+		git clone https://github.com/nitesh-shetty/dotfiles.git
+	fi
+	check_create_link ${TOOL_DIR}/dotfiles/.tmux.conf ~/.tmux.conf
+}
+
 setup() {
 	if [[ $# -lt 1 ]]; then
 		usage
@@ -118,6 +138,9 @@ setup() {
 			;;
 		nvim )
 			update_nvim
+			;;
+		tmux )
+			update_tmux
 			;;
 		* )
 			usage
