@@ -4,7 +4,7 @@ alias vim="nvim"
 alias bload="source ~/.bashrc"
 alias bedit="vi ~/.bash_aliases ~/.bashrc"
 alias cdl="cd /home/nitesh/src/linux"
-export NOTMUCH_CONFIG=$HOME/.mail/lore/notmuch.rc
+# export NOTMUCH_CONFIG=$HOME/.lkml/notmuch.rc
 
 function uvm() {
 	local QEMU=/home/nitesh/src/qemu/build/qemu-system-x86_64
