@@ -38,6 +38,8 @@ bind index \\ vfolder-from-query
 
 # launch sync script when pressing 'S' (capital S)
 macro index S "<shell-escape>lkml_dir/sync.sh 2>&1<enter>" "sync email and notmuch"
+
+# download the patches and store in ~/patches folder, refer to from-mutt shell script
 macro index,pager H "<enter-command>unset wait_key<enter><enter-command>set pipe_decode<enter><tag-prefix><pipe-entry>from-mutt<enter><enter-command>uset pipe_decode<enter><enter-command>set wait_key<enter>" "output git patches"
 
 macro index,pager A '| git am '\n
