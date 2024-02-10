@@ -28,3 +28,4 @@ function lkml_mutt() {
 }
 
 alias mymutt="cdl && neomutt -F ~/.lkml/muttrc"
+PATH=$HOME/bin:$PATH

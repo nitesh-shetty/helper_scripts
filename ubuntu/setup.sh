@@ -141,6 +141,7 @@ update_lei() {
 	if ! command -v lei &> /dev/null ; then
 		echo "lei could not be found"
 		sudo apt install libsearch-xapian-perl python3-pip gnome-keyring -y
+		sudo apt install procmail -y
 		pip install keyring
 		cd ${TOOL_DIR}
 		git clone https://public-inbox.org/public-inbox.git
@@ -175,6 +176,14 @@ update_lei() {
 
 	cp config_files/vim-keys.rc ${lkml_dir}/
 	sed -i "s|lkml_dir|${lkml_dir}|g" $lkml_dir/vim-keys.rc
+
+	if [ ! -d "${lkml_dir}/patches" ]; then
+		mkdir -p ${lkml_dir}/patches
+	fi
+	if [ ! -d "${lkml_dir}/bin" ]; then
+		mkdir -p ${lkml_dir}/bin
+	fi
+	cp config_files/from-mutt ${lkml_dir}/
 
 	cp config_files/notmuch.rc ${lkml_dir}/
 	sed -i "s|lkml_dir|${lkml_dir}|g" $lkml_dir/notmuch.rc
