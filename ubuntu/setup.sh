@@ -143,7 +143,7 @@ update_tmux() {
 		cd $TOOL_DIR
 		git clone https://github.com/nitesh-shetty/dotfiles.git
 	fi
-	check_create_link ${TOOL_DIR}/dotfiles/.tmux.conf ~/.tmux.conf
+	check_create_link ${TOOL_DIR}/dotfiles/tmux.conf ~/.tmux.conf
 }
 
 update_date() {
