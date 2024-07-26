@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -x
 
 TOOL_DIR="$HOME/src/tools"
 DUMP_DIR="$HOME/dump"
@@ -58,6 +58,19 @@ check_create_link() {
 	fi
 }
 
+update_latex() {
+	if ! command -v zathura &> /dev/null ; then
+		echo "zathura could not be found, installing now.."
+		sudo apt install texlive latexmk texlive-latex-extra -y
+		sudo apt install texlive-fonts-extra default-jre zathura -y
+	fi
+	if [ ! -d "~/.config/zathura" ]; then
+		mkdir -p ~/.config/zathura/
+	fi
+
+	check_create_link ${SCRIPT_DIR}/config_files/zathurarc ~/.config/zathura/zathurarc
+}
+
 update_nvim() {
 	local nvim_config=~/.config/nvim
 
@@ -66,6 +79,7 @@ update_nvim() {
 		cd $TOOL_DIR
 		sudo apt install git ninja-build gettext cmake -y
 		sudo apt install unzip curl fonts-powerline ripgrep -y
+		sudo apt install locales-all -y
 	fi
 	
 	cd $TOOL_DIR
@@ -82,6 +96,7 @@ update_nvim() {
 
 	if [ -d "${nvim_config}" ]; then
 		cd ${nvim_config}
+		git stash
 		git pull
 	else
 		cd $TOOL_DIR
@@ -97,11 +112,18 @@ update_nvim() {
 		git clone https://github.com/nitesh-shetty/dotfiles.git
 	fi
 	
-	sed -i "s|-- { import = 'custom.plugins' },|{ import = 'custom.plugins' },|g" ${HOME}/.config/nvim/init.lua
-	check_create_link ${TOOL_DIR}/dotfiles/init.lua ~/.config/nvim/lua/custom/plugins/my.lua
+	sed -i "s|-- { import = 'custom.plugins' },|{ import = 'custom.plugins' },|g" \
+		${HOME}/.config/nvim/init.lua
+			sed -i "s|nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documnetation')|-- nmap('<C-K>', vim.lsp.vuf.signature_help, 'Signature Documentation')|g" \
+				${HOME}/.config/nvim/init.lua
+
+	check_create_link ${TOOL_DIR}/dotfiles/vim_options.lua ~/.config/nvim/lua/custom/plugins/vim_options.lua
+	check_create_link ${TOOL_DIR}/dotfiles/tmux_navigator.lua ~/.config/nvim/lua/custom/plugins/tmux_navigator.lua
+	check_create_link ${TOOL_DIR}/dotfiles/vimtex.lua ~/.config/nvim/lua/custom/plugins/vimtex.lua
 	git config --global core.editor "nvim"
 	sudo update-alternatives --install /usr/bin/editor editor $(which nvim) 10
 	update_npm
+	update_latex
 }
 
 update_tmux() {
