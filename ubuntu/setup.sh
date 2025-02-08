@@ -14,6 +14,7 @@ usage() {
 		alias		: Update alias.\n\t
 		nvim		: Update neovim.\n\t
 		tmux		: Update tmux.\n\t
+		fio		: Update fio.\n\t
 		date		: Update date and time.\n\t
 		lei		: Update lei.\n\t
 		help		: help.\n"
@@ -146,6 +147,21 @@ update_tmux() {
 	check_create_link ${TOOL_DIR}/dotfiles/tmux.conf ~/.tmux.conf
 }
 
+update_fio() {
+	if [ -d "${HOME}/src/fio" ]; then
+		cd ${HOME}/src/fio
+		git pull
+	else
+		mkdir -p ${HOME}/src
+		cd ${HOME}/src
+		git clone https://github.com/axboe/fio.git
+		cd fio
+	fi
+	make -j$(nproc)
+	sudo make install
+	fio --version
+}
+
 update_date() {
 	local date time
 	echo "input date and time in below format: YYYY-MM-DD HH:MM:SS"
@@ -263,6 +279,9 @@ setup() {
 			;;
 		tmux )
 			update_tmux
+			;;
+		fio )
+			update_fio
 			;;
 		date )
 			update_date
