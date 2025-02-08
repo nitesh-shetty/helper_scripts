@@ -24,7 +24,7 @@ bind pager,index		dt	delete-subthread
 bind pager,index		gt	next-thread
 bind pager,index		gT	previous-thread
 bind index			za	collapse-thread
-bind index			zA	collapse-all
+bind index			zz	collapse-all
 
 # Sidebar keybinds
 bind index,pager		\Cp	sidebar-prev
