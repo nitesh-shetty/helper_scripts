@@ -2,8 +2,9 @@ alias tmux="tmux -u"
 alias vi="nvim"
 alias vim="nvim"
 alias bload="source ~/.bashrc"
-alias bedit="vi ~/.bash_aliases ~/.bashrc"
-alias cdl="cd /home/nitesh/src/linux"
+alias bedit="vi ~/.bash_aliases"
+alias cdl="cd ~/src/linux"
+alias cdf="cd ~/src/fio"
 # export NOTMUCH_CONFIG=$HOME/.lkml/notmuch.rc
 
 function uvm() {
