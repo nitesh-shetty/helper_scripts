@@ -5,6 +5,7 @@ TOOL_DIR="$HOME/src/tools"
 DUMP_DIR="$HOME/dump"
 SCRIPT_DIR="$(pwd)"
 UBUNTU_VM_DIR="${HOME}/ubuntu_vm"
+SRC_DIR="$HOME/src"
 
 usage() {
 	USAGE="$0 command [OPTIONS..]\n\n
@@ -19,6 +20,7 @@ usage() {
 		date		: Update date and time.\n\t
 		lei		: Update lei.\n\t
 		ubuntu_vm	: Create a ubuntu vm.\n\t
+		get_src		: Get source code for Linux, fio.\n\t
 		help		: help.\n\n
 	Sample: usage\n\t
 	$0 nvim\n\t
@@ -294,6 +296,19 @@ setup_ubuntu_vm() {
 	# sudo usermod -aG libvirtd "$(whoami)"
 }
 
+get_src_linux() {
+	cd $SRC_DIR
+	if [ ! -d "$SRC_DIR/linux" ]; then
+		echo "Cloning Linux"
+		git clone https://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git
+		sudo apt install -y libncurses5-dev gcc make exuberant-ctags git bc flex bison libssl-dev pahole libelf-dev rsync
+	fi
+}
+
+get_src() {
+	get_src_linux
+}
+
 setup() {
 	if [[ $# -lt 1 ]]; then
 		usage
@@ -323,6 +338,9 @@ setup() {
 			;;
 		ubuntu_vm )
 			setup_ubuntu_vm
+			;;
+		get_src )
+			get_src
 			;;
 		* )
 			usage
