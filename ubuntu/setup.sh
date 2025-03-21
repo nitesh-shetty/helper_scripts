@@ -1,9 +1,10 @@
 #!/bin/bash
-set -x
+set -eu
 
 TOOL_DIR="$HOME/src/tools"
 DUMP_DIR="$HOME/dump"
 SCRIPT_DIR="$(pwd)"
+UBUNTU_VM_DIR="${HOME}/ubuntu_vm"
 
 usage() {
 	USAGE="$0 command [OPTIONS..]\n\n
@@ -17,8 +18,12 @@ usage() {
 		fio		: Update fio.\n\t
 		date		: Update date and time.\n\t
 		lei		: Update lei.\n\t
-		help		: help.\n"
-	echo $USAGE
+		ubuntu_vm	: Create a ubuntu vm.\n\t
+		help		: help.\n\n
+	Sample: usage\n\t
+	$0 nvim\n\t
+	$0 nvme -v\n"
+	echo -ne $USAGE
 }
 
 create_dir() {
@@ -262,6 +267,33 @@ update_lei() {
 	echo "Please append below in bashrc alias mymutt=\"neomutt -F $lkml_dir/muttrc\""
 }
 
+setup_ubuntu_vm() {
+	if [ ! -d "${UBUNTU_VM_DIR}" ]; then
+		mkdir -p ${UBUNTU_VM_DIR}
+	fi
+	cd ${UBUNTU_VM_DIR}
+	# wget --no-check-certificate https://cloud-images.ubuntu.com/minimal/releases/noble/release/ubuntu-24.04-minimal-cloudimg-amd64.img
+
+	if ! command -v cloud-localds &> /dev/null ; then
+		sudo apt install -y cloud-image-utils -y
+	fi
+	cloud-localds ${UBUNTU_VM_DIR}/user-seed.img ${SCRIPT_DIR}/config_files/vm_user_data -d qcow2
+
+	if ! command -v qemu-img &> /dev/null ; then
+		sudo apt install -y qemu-utils -y
+	fi
+	qemu-img create -f qcow2 -b ${UBUNTU_VM_DIR}/ubuntu-24.04-minimal-cloudimg-amd64.img -F qcow2 ${UBUNTU_VM_DIR}/backing.qcow2
+	qemu-img resize ${UBUNTU_VM_DIR}/backing.qcow2 32G
+	#this can be reused for resizeing as well in future
+
+	qemu-img create -f qcow2 ${UBUNTU_VM_DIR}/nvm.qcow2 5G
+	cp config_files/vm-nvme.cfg ${UBUNTU_VM_DIR}/nvme.cfg
+	sed -i "s|UBUNTU_VM_DIR|${UBUNTU_VM_DIR}|g" ${UBUNTU_VM_DIR}/nvme.cfg
+	sudo usermod -aG kvm "$(whoami)"
+	sudo chmod +666 /dev/kvm
+	# sudo usermod -aG libvirtd "$(whoami)"
+}
+
 setup() {
 	if [[ $# -lt 1 ]]; then
 		usage
@@ -288,6 +320,9 @@ setup() {
 			;;
 		lei )
 			update_lei
+			;;
+		ubuntu_vm )
+			setup_ubuntu_vm
 			;;
 		* )
 			usage
