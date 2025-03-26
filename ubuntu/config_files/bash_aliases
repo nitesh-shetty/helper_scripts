@@ -8,6 +8,7 @@ alias cdf="cd ~/src/fio"
 alias aptin="sudo apt install -y"
 alias aptcs="sudo apt-cache search"
 alias aptup="sudo apt update -y && sudo apt upgrade -y"
+alias kernel_compile_install="time kernel_compile_install"
 
 # export NOTMUCH_CONFIG=$HOME/.lkml/notmuch.rc
 
@@ -42,6 +43,11 @@ function kernel_reconfig() {
 	scripts/config --disable DEBUG_INFO_BTF
 	# scripts/config --disable HEADERS_INSTALL
 	# scripts/config --disable SAMPLE_VFS
+}
+
+function kernel_compile_install() {
+	kernel_compile
+	kernel_install
 }
 
 function 22_uvm() {
