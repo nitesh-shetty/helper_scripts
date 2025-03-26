@@ -305,8 +305,17 @@ get_src_linux() {
 	fi
 }
 
+get_src_fio() {
+	cd $SRC_DIR
+	if [ ! -d "$SRC_DIR/fio" ]; then
+		echo "Cloning Fio"
+		git clone https://github.com/axboe/fio.git
+	fi
+}
+
 get_src() {
 	get_src_linux
+	get_src_fio
 }
 
 setup() {
