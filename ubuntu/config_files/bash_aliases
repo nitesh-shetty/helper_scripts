@@ -3,11 +3,12 @@ alias vi="nvim"
 alias vim="nvim"
 alias bload="source ~/.bashrc"
 alias bedit="vi ~/.bash_aliases"
-alias cdl="cd ~/src/linux"
+alias cdl="cd ~/src/linux-block"
 alias cdf="cd ~/src/fio"
 alias aptin="sudo apt install -y"
 alias aptcs="sudo apt-cache search"
 alias aptup="sudo apt update -y && sudo apt upgrade -y"
+alias mymutt="cdl && neomutt -F ~/.lkml/muttrc"
 alias kernel_compile_install="time kernel_compile_install"
 
 # export NOTMUCH_CONFIG=$HOME/.lkml/notmuch.rc
@@ -111,5 +112,4 @@ function lkml_mutt() {
 	neomutt -F ~/.mail/lore/muttrc
 }
 
-alias mymutt="cdl && neomutt -F ~/.lkml/muttrc"
 PATH=$HOME/bin:$PATH

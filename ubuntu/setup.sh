@@ -185,12 +185,23 @@ update_lei() {
 
 	if ! command -v lei &> /dev/null ; then
 		echo "lei could not be found"
+		sudo apt install -y liburi-perl libdbd-sqlite3-perl \
+			libsearch-xapian-perl libplack-perl \
+			libinline-c-perl libemail-address-xs-perl \
+			libparse-recdescent-perl libmail-imapclient-perl \
+			libbsd-resource-perl \
+			libplack-middleware-reverseproxy-perl \
+			libhighlight-perl xapian-tools libxapian-dev \
+			curl liblinux-inotify2-perl libnet-server-perl \
+			libdbi-perl libsocket6-perl libcrypt-cbc-perl \
+			libtimedate-perl
 		sudo apt install libsearch-xapian-perl python3-pip gnome-keyring -y
 		sudo apt install procmail -y
-		pip install keyring
+		# pip install keyring
+		sudo apt install python3-keyring
 		cd ${TOOL_DIR}
-		git clone https://public-inbox.org/public-inbox.git
-		cd public-inbox-mda
+		# git clone https://public-inbox.org/public-inbox.git
+		cd public-inbox
 		perl Makefile.PL
 		make
 		sudo make install
@@ -241,10 +252,13 @@ update_lei() {
 
 	cp config_files/sync.sh ${lkml_dir}/
 	sed -i "s|lkml_dir|${lkml_dir}|g" ${lkml_dir}/sync.sh
+	chmod a+x ${lkml_dir}/sync.sh
 
 	lei q -I https://lore.kernel.org/all -o ${lkml_dir}/mail --threads \
 		--dedupe=mid \
-		'(tc:linux-linux OR tc:linux-block OR tc:linux-fsdevel OR tc:io-uring) AND rt:1.days.ago..'
+		'(tc:linux-nvme OR tc:linux-block OR tc:linux-fsdevel OR tc:io-uring) AND rt:1.days.ago..'
+	#if you get aborted error, kill the previous daemon using lei daemon-kill
+	# this usually happens if some dependency tool is not installed
 	lei up ${lkml_dir}/mail
 
 
@@ -289,7 +303,7 @@ setup_ubuntu_vm() {
 	#this can be reused for resizeing as well in future
 
 	qemu-img create -f qcow2 ${UBUNTU_VM_DIR}/nvm.qcow2 5G
-	cp config_files/vm-nvme.cfg ${UBUNTU_VM_DIR}/nvme.cfg
+	cp ${SCRIPT_DIR}/config_files/vm-nvme.cfg ${UBUNTU_VM_DIR}/nvme.cfg
 	sed -i "s|UBUNTU_VM_DIR|${UBUNTU_VM_DIR}|g" ${UBUNTU_VM_DIR}/nvme.cfg
 	sudo usermod -aG kvm "$(whoami)"
 	sudo chmod +666 /dev/kvm
@@ -298,7 +312,7 @@ setup_ubuntu_vm() {
 
 get_src_linux() {
 	cd $SRC_DIR
-	if [ ! -d "$SRC_DIR/linux" ]; then
+	if [ ! -d "$SRC_DIR/linux-block" ]; then
 		echo "Cloning Linux"
 		git clone https://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git
 		sudo apt install -y libncurses5-dev gcc make exuberant-ctags git bc flex bison libssl-dev pahole libelf-dev rsync
@@ -350,6 +364,12 @@ setup() {
 			;;
 		get_src )
 			get_src
+			;;
+		test )
+			local lkml_dir=${HOME}/.lkml
+			lei q -I https://lore.kernel.org/all -o ${lkml_dir}/mail --threads \
+				--dedupe=mid \
+				'(tc:linux-nvme OR tc:linux-block OR tc:linux-fsdevel OR tc:io-uring) AND rt:1.days.ago..'
 			;;
 		* )
 			usage
