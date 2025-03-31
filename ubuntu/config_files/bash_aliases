@@ -19,9 +19,16 @@ DUMP_DIR=${HOME}/dump
 
 function host_mnt() {
 	set -e
-	mod_dir=/lib/modules/${uname -r}
+	mod_dir=/lib/modules/$(uname -r)
 	mkdir -p $mod_dir
 	sudo mount -t 9p -o trans=virtio host_module $mod_dir
+}
+
+function reveal_view() {
+	if ! command wslview -v; then
+		sudo apt install -y wslu
+	fi
+	wslview http://localhost:8000
 }
 
 function kernel_install() {
