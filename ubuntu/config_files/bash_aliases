@@ -1,18 +1,24 @@
+alias bload="source ~/.bashrc"
+alias bedit="vi ~/.bash_aliases"
+
 alias tmux="tmux -u"
 alias vi="nvim"
 alias vim="nvim"
-alias bload="source ~/.bashrc"
-alias bedit="vi ~/.bash_aliases"
-alias cdl="cd ~/src/linux-block"
-alias cdf="cd ~/src/fio"
+alias vimdiff="nvim -d"
+
 alias aptin="sudo apt install -y"
 alias aptcs="sudo apt-cache search"
 alias aptup="sudo apt update -y && sudo apt upgrade -y"
+
 alias mymutt="cdl && neomutt -F ~/.lkml/muttrc"
-alias kernel_compile_install="time kernel_compile_install"
+
+alias cdl="cd ~/src/linux-block"
+alias cdf="cd ~/src/fio"
 alias cdh="cd ${HOME}/src/tools/helper_scripts"
 alias cdhu="cd ${HOME}/src/tools/helper_scripts/ubuntu"
 
+alias kernel_compile_install="time kernel_compile_install"
+alias kernel_recompile_install="time kernel_recompile_install"
 # export NOTMUCH_CONFIG=$HOME/.lkml/notmuch.rc
 
 DUMP_DIR=${HOME}/dump
@@ -41,6 +47,7 @@ function kernel_install() {
 	echo compiled kernel $(cat $DUMP_DIR/kernel.txt)
 	echo booted kernel $(uname -r)
 	set +e
+	echo "Kernel Installation Complete"
 }
 
 function kernel_compile() {
@@ -48,24 +55,42 @@ function kernel_compile() {
 	make kernelrelease > $DUMP_DIR/kernel.txt
 	echo compiled_kernel $(cat $DUMP_DIR/kernel.txt)
 	echo booted kernel $(uname -r)
-	set +e
+	echo "Kernel compilation Complete"
 }
 
 function kernel_reconfig() {
 	sudo make distclean
 	./scripts/kconfig/streamline_config.pl > config_strip
-	mv .config config_bkp
-	cp config_strip .config
+	if [ -f config ]; then
+		mv config config_bkp
+	fi
+	cp config_strip config
 	make olddefconfig
+	# make tinyconfig
+	scripts/config --disable LOCALVERSION_AUTO
+	scripts/config --disable LOCALVERSION
 	scripts/config --disable DEBUG_INFO
 	scripts/config --disable SYSTEM_TRUSTED_KEYS
+	scripts/config --disable SYSTEM_TRUSTED_KEYRING
 	scripts/config --disable SYSTEM_REVOCATION_KEYS
 	scripts/config --disable DEBUG_INFO_BTF
+	scripts/config --module BLK_DEV_NVME
+	scripts/config --module NVME_TCP
+	scripts/config --module NVME_TARGET
+	scripts/config --module NVME_TARGET_LOOP
+	scripts/config --module NVME_TARGET_TCP
 	# scripts/config --disable HEADERS_INSTALL
 	# scripts/config --disable SAMPLE_VFS
+	echo "Kernel reconfig Complete"
 }
 
 function kernel_compile_install() {
+	kernel_compile
+	kernel_install
+}
+
+function kernel_recompile_install() {
+	kernel_reconfig
 	kernel_compile
 	kernel_install
 }
@@ -86,7 +111,7 @@ function uvm_hl() {
 	local backing_image=${HOME}/ubuntu_vm/backing.qcow2
 	local user_data=${HOME}/ubuntu_vm/user-seed.img
 	local kernel=${HOME}/src/linux-block/arch/x86/boot/bzImage
-	local virtfs_path=${HOME}/src/linux-block/
+	local virtfs_path=/lib/modules/$(cat $DUMP_DIR/kernel.txt)
 	local virtfs_args="-virtfs local,path=$virtfs_path,mount_tag=host_module,security_model=mapped,readonly"
 	local nvme_cfg=${HOME}/ubuntu_vm/nvme.cfg
 	local args
@@ -135,6 +160,6 @@ function lkml_mutt() {
 
 PATH=$HOME/bin:$PATH
 
-if -e source /usr/share/bash-completion/completions/git; then
+if [ -e /usr/share/bash-completion/completions/git ]; then
 	source /usr/share/bash-completion/completions/git
 fi
