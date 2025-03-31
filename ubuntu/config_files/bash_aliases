@@ -1,6 +1,9 @@
 alias bload="source ~/.bashrc"
 alias bedit="vi ~/.bash_aliases"
 
+alias nvme="sudo nvme"
+alias dmesg="sudo dmesg"
+
 alias tmux="tmux -u"
 alias vi="nvim"
 alias vim="nvim"

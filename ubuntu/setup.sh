@@ -21,6 +21,7 @@ usage() {
 		lei		: Update lei.\n\t
 		qemu		: Update qemu build.\n\t
 		ubuntu_vm	: Create a ubuntu vm.\n\t
+		nvme		: Update nvme-cli.\n\t
 		get_src		: Get source code for Linux, fio.\n\t
 		revealjs	: revealjs setup.\n\t
 		help		: help.\n\n
@@ -362,6 +363,54 @@ get_src() {
 	get_src_fio
 }
 
+setup_libnvme() {
+	if [ -d "${TOOL_DIR}/libnvme" ]; then
+		echo "Updating libnvme"
+		cd ${TOOL_DIR}/libnvme
+		git pull
+		if [ -d ".build" ]; then
+			rm -rf .build
+		fi
+	else
+		echo "Cloning libnvme"
+		cd ${TOOL_DIR}
+		git clone https://github.com/linux-nvme/libnvme.git
+		cd libnvme
+		sudo apt install -y meson libjson-c-dev openssl libkeyutils-dev \
+			pkgconf swig keyutils libdbus-1-dev dbus python3 \
+			python3-dev libdbus-1-3 python3-pip libpython3-dev \
+			python3-dbus-python
+	fi
+	meson setup .build
+	meson compile -C .build
+	sudo meson install -C .build
+}
+
+setup_nvmecli() {
+	if [ -d "${TOOL_DIR}/nvme-cli" ]; then
+		echo "Updating nvme-cli"
+		cd ${TOOL_DIR}/nvme-cli
+		git pull
+		if [ -d ".build" ]; then
+			rm -rf .build
+		fi
+	else
+		echo "Cloning nvme-cli"
+		cd ${TOOL_DIR}
+		git clone https://github.com/linux-nvme/nvme-cli.git
+		cd nvme-cli
+		sudo apt install -y libhugetlbfs-dev
+	fi
+	meson setup .build
+	meson compile -C .build
+	sudo meson install -C .build
+}
+
+setup_nvme() {
+	# setup_libnvme
+	setup_nvmecli
+}
+
 get_revealjs() {
 	if [ ! -d "$TOOL_DIR/reveal.js" ]; then
 		cd $TOOL_DIR
@@ -409,6 +458,9 @@ setup() {
 			;;
 		get_src )
 			get_src
+			;;
+		nvme )
+			setup_nvme
 			;;
 		revealjs )
 			get_revealjs
