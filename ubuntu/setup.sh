@@ -21,6 +21,7 @@ usage() {
 		lei		: Update lei.\n\t
 		ubuntu_vm	: Create a ubuntu vm.\n\t
 		get_src		: Get source code for Linux, fio.\n\t
+		revealjs	: revealjs setup.\n\t
 		help		: help.\n\n
 	Sample: usage\n\t
 	$0 nvim\n\t
@@ -284,11 +285,16 @@ update_lei() {
 }
 
 setup_ubuntu_vm() {
+	local ubuntu_image=ubuntu-24.04-minimal-cloudimg-amd64.img
+
 	if [ ! -d "${UBUNTU_VM_DIR}" ]; then
 		mkdir -p ${UBUNTU_VM_DIR}
 	fi
 	cd ${UBUNTU_VM_DIR}
-	# wget --no-check-certificate https://cloud-images.ubuntu.com/minimal/releases/noble/release/ubuntu-24.04-minimal-cloudimg-amd64.img
+
+	if [ ! -f "$ubuntu_image}" ]; then
+		wget --no-check-certificate https://cloud-images.ubuntu.com/minimal/releases/noble/release/${ubuntu_image}
+	fi
 
 	if ! command -v cloud-localds &> /dev/null ; then
 		sudo apt install -y cloud-image-utils -y
@@ -298,7 +304,7 @@ setup_ubuntu_vm() {
 	if ! command -v qemu-img &> /dev/null ; then
 		sudo apt install -y qemu-utils -y
 	fi
-	qemu-img create -f qcow2 -b ${UBUNTU_VM_DIR}/ubuntu-24.04-minimal-cloudimg-amd64.img -F qcow2 ${UBUNTU_VM_DIR}/backing.qcow2
+	qemu-img create -f qcow2 -b ${UBUNTU_VM_DIR}/${ubuntu_image} -F qcow2 ${UBUNTU_VM_DIR}/backing.qcow2
 	qemu-img resize ${UBUNTU_VM_DIR}/backing.qcow2 32G
 	#this can be reused for resizeing as well in future
 
@@ -330,6 +336,18 @@ get_src_fio() {
 get_src() {
 	get_src_linux
 	get_src_fio
+}
+
+get_revealjs() {
+	if [ ! -d "$TOOL_DIR/reveal.js" ]; then
+		cd $TOOL_DIR
+		echo "Cloning revealjs"
+		git clone https://github.com/hakimel/reveal.js.git
+		sudo apt install -y gulp
+	fi
+	cd $TOOL_DIR/reveal.js
+	npm install
+	npm start
 }
 
 setup() {
@@ -364,6 +382,9 @@ setup() {
 			;;
 		get_src )
 			get_src
+			;;
+		revealjs )
+			get_revealjs
 			;;
 		test )
 			local lkml_dir=${HOME}/.lkml
