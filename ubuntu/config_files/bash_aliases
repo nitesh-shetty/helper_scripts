@@ -134,3 +134,7 @@ function lkml_mutt() {
 }
 
 PATH=$HOME/bin:$PATH
+
+if -e source /usr/share/bash-completion/completions/git; then
+	source /usr/share/bash-completion/completions/git
+fi
