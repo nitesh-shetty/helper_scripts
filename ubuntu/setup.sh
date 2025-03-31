@@ -19,6 +19,7 @@ usage() {
 		fio		: Update fio.\n\t
 		date		: Update date and time.\n\t
 		lei		: Update lei.\n\t
+		qemu		: Update qemu build.\n\t
 		ubuntu_vm	: Create a ubuntu vm.\n\t
 		get_src		: Get source code for Linux, fio.\n\t
 		revealjs	: revealjs setup.\n\t
@@ -284,6 +285,29 @@ update_lei() {
 	echo "Please append below in bashrc alias mymutt=\"neomutt -F $lkml_dir/muttrc\""
 }
 
+setup_qemu() {
+	local ubuntu_image=ubuntu-24.04-minimal-cloudimg-amd64.img
+
+	if [ -d "${TOOL_DIR}/qemu" ]; then
+		echo "Updating Qemu"
+		cd ${TOOL_DIR}/qemu
+		git pull
+	else
+		echo "Cloning Qemu"
+		cd ${TOOL_DIR}
+		git clone https://gitlab.com/qemu-project/qemu.git
+		sudo apt install -y libslirp-dev libglib2.0-dev
+	fi
+
+	if [ ! -d "$TOOL_DIR/qemu/build_x86" ]; then
+		mkdir $TOOL_DIR/qemu/build_x86
+	fi
+	cd $TOOL_DIR/qemu/build_x86
+	../configure --target-list=x86_64-softmmu --enable-slirp --enable-virtfs --enable-kvm
+	make -j$(nproc)
+	sudo make install
+}
+
 setup_ubuntu_vm() {
 	local ubuntu_image=ubuntu-24.04-minimal-cloudimg-amd64.img
 
@@ -376,6 +400,9 @@ setup() {
 			;;
 		lei )
 			update_lei
+			;;
+		qemu )
+			setup_qemu
 			;;
 		ubuntu_vm )
 			setup_ubuntu_vm

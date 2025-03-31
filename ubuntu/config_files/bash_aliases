@@ -65,11 +65,12 @@ function 22_uvm() {
 }
 
 function uvm_hl() {
-	local QEMU=${HOME}/src/qemu/build/qemu-system-x86_64
+	# local QEMU=${HOME}/src/qemu/build/qemu-system-x86_64
+	local QEMU=qemu-system-x86_64
 	local BASE=${HOME}/ubuntu_vm/ubuntu-24.04-minimal-cloudimg-amd64.img
 	local BACKING=${HOME}/ubuntu_vm/backing.qcow2
 	local USER_DATA=${HOME}/ubuntu_vm/user-seed.img
-	local KERNEL=${HOME}/src/linux/arch/x86/boot/bzImage
+	local KERNEL=${HOME}/src/linux-block/arch/x86/boot/bzImage
 	local NVME_CFG=${HOME}/ubuntu_vm/nvme.cfg
 	local ARGS
 
