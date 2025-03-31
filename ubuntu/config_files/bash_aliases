@@ -10,6 +10,8 @@ alias aptcs="sudo apt-cache search"
 alias aptup="sudo apt update -y && sudo apt upgrade -y"
 alias mymutt="cdl && neomutt -F ~/.lkml/muttrc"
 alias kernel_compile_install="time kernel_compile_install"
+alias cdh="cd ${HOME}/src/tools/helper_scripts"
+alias cdhu="cd ${HOME}/src/tools/helper_scripts/ubuntu"
 
 # export NOTMUCH_CONFIG=$HOME/.lkml/notmuch.rc
 
