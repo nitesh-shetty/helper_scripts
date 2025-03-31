@@ -38,6 +38,10 @@ function kernel_compile() {
 
 function kernel_reconfig() {
 	sudo make distclean
+	./scripts/kconfig/streamline_config.pl > config_strip
+	mv .config config_bkp
+	cp config_strip .config
+	make olddefconfig
 	scripts/config --disable DEBUG_INFO
 	scripts/config --disable SYSTEM_TRUSTED_KEYS
 	scripts/config --disable SYSTEM_REVOCATION_KEYS
