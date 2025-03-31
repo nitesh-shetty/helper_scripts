@@ -66,24 +66,25 @@ function 22_uvm() {
 
 function uvm_hl() {
 	# local QEMU=${HOME}/src/qemu/build/qemu-system-x86_64
-	local QEMU=qemu-system-x86_64
-	local BASE=${HOME}/ubuntu_vm/ubuntu-24.04-minimal-cloudimg-amd64.img
-	local BACKING=${HOME}/ubuntu_vm/backing.qcow2
-	local USER_DATA=${HOME}/ubuntu_vm/user-seed.img
-	local KERNEL=${HOME}/src/linux-block/arch/x86/boot/bzImage
-	local NVME_CFG=${HOME}/ubuntu_vm/nvme.cfg
-	local ARGS
+	local qemu_img=qemu-system-x86_64
+	local backing_image=${HOME}/ubuntu_vm/backing.qcow2
+	local user_data=${HOME}/ubuntu_vm/user-seed.img
+	local kernel=${HOME}/src/linux-block/arch/x86/boot/bzImage
+	local virtfs_path=${HOME}/src/linux-block/
+	local virtfs_args="-virtfs local,path=$virtfs_path,mount_tag=host_module,security_model=mapped,readonly"
+	local nvme_cfg=${HOME}/ubuntu_vm/nvme.cfg
+	local args
 
-	ARGS="--machine accel=kvm,type=q35 -cpu host -m 4G -smp cpus=4 --nographic "
-	ARGS+="-device virtio-net-pci,netdev=net0 -netdev user,id=net0,hostfwd=tcp::2222-:22 "
-	ARGS+="-drive if=virtio,format=qcow2,file=$BACKING,file.locking=off "
-	ARGS+="-drive if=virtio,format=qcow2,file=$USER_DATA,file.locking=off "
-	# ARGS+="-kernel ${KERNEL} -append \"root=/dev/vda1 console=ttyS0\" "
-	ARGS+="-readconfig $NVME_CFG"
+	args="--machine accel=kvm,type=q35 -cpu host -m 4G -smp cpus=4 --nographic "
+	args+="-device virtio-net-pci,netdev=net0 -netdev user,id=net0,hostfwd=tcp::2222-:22 "
+	args+="-drive if=virtio,format=qcow2,file=$backing_image,file.locking=off "
+	args+="-drive if=virtio,format=qcow2,file=$user_data,file.locking=off "
+	args+="$virtfs_args "
+	# args+="-kernel ${KERNEL} -append \"root=/dev/vda1 console=ttyS0\" "
+	args+="-readconfig $nvme_cfg"
 
-
-	echo $ARGS
-	$QEMU $ARGS -kernel ${KERNEL} -append "root=/dev/vda1 console=ttyS0"
+	echo $args
+	$qemu_img $args -kernel ${kernel} -append "root=/dev/vda1 console=ttyS0"
 }
 
 alias old_luvm="ssh -p 2222 ubuntu@0.0.0.0"
