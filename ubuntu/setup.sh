@@ -317,7 +317,7 @@ setup_ubuntu_vm() {
 	fi
 	cd ${UBUNTU_VM_DIR}
 
-	if [ ! -f "$ubuntu_image}" ]; then
+	if [ ! -f "${ubuntu_image}" ]; then
 		wget --no-check-certificate https://cloud-images.ubuntu.com/minimal/releases/noble/release/${ubuntu_image}
 	fi
 
@@ -330,10 +330,10 @@ setup_ubuntu_vm() {
 		sudo apt install -y qemu-utils -y
 	fi
 	qemu-img create -f qcow2 -b ${UBUNTU_VM_DIR}/${ubuntu_image} -F qcow2 ${UBUNTU_VM_DIR}/backing.qcow2
-	qemu-img resize ${UBUNTU_VM_DIR}/backing.qcow2 32G
+	qemu-img resize ${UBUNTU_VM_DIR}/backing.qcow2 12G
 	#this can be reused for resizeing as well in future
 
-	qemu-img create -f qcow2 ${UBUNTU_VM_DIR}/nvm.qcow2 5G
+	qemu-img create -f qcow2 ${UBUNTU_VM_DIR}/nvm.qcow2 1G
 	cp ${SCRIPT_DIR}/config_files/vm-nvme.cfg ${UBUNTU_VM_DIR}/nvme.cfg
 	sed -i "s|UBUNTU_VM_DIR|${UBUNTU_VM_DIR}|g" ${UBUNTU_VM_DIR}/nvme.cfg
 	sudo usermod -aG kvm "$(whoami)"
