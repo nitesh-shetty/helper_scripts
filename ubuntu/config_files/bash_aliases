@@ -20,6 +20,7 @@ alias cdl="cd ~/src/linux-block"
 alias cdf="cd ~/src/fio"
 alias cdh="cd ${HOME}/src/tools/helper_scripts"
 alias cdhu="cd ${HOME}/src/tools/helper_scripts/ubuntu"
+alias cdlu="cd ${HOME}/src/tools/liburing"
 
 alias kernel_compile_install="time kernel_compile_install"
 alias kernel_recompile_install="time kernel_recompile_install"
@@ -118,6 +119,7 @@ function uvm_hl() {
 	local virtfs_path=/lib/modules/$(cat $DUMP_DIR/kernel.txt)
 	local virtfs_args="-virtfs local,path=$virtfs_path,mount_tag=host_module,security_model=mapped,readonly"
 	local nvme_cfg=${HOME}/ubuntu_vm/nvme.cfg
+	local nvme2_cfg=${HOME}/ubuntu_vm/nvme2.cfg
 	local args
 
 	args="--machine accel=kvm,type=q35 -cpu host -m 4G -smp cpus=4 --nographic "
@@ -126,7 +128,8 @@ function uvm_hl() {
 	args+="-drive if=virtio,format=qcow2,file=$user_data,file.locking=off "
 	args+="$virtfs_args "
 	# args+="-kernel ${KERNEL} -append \"root=/dev/vda1 console=ttyS0\" "
-	args+="-readconfig $nvme_cfg"
+	args+="-readconfig $nvme_cfg "
+	args+="-readconfig $nvme2_cfg "
 
 	echo $args
 	$qemu_img $args -kernel ${kernel} -append "root=/dev/vda1 console=ttyS0"

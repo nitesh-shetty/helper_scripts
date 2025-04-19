@@ -332,6 +332,22 @@ setup_qemu() {
 	sudo make install
 }
 
+# Untested
+create_nvme_images() {
+	if [[ $# -lt 2 ]]; then
+		echo "please input device enumeration number and block size"
+		return 1
+	fi
+	local dev_no=$1
+	local lba_size=$2
+
+	qemu-img create -f qcow2 ${UBUNTU_VM_DIR}/nvme$(dev_no).qcow2 1G
+	cp ${SCRIPT_DIR}/config_files/vm-nvme.cfg ${UBUNTU_VM_DIR}/nvme$(dev_no).cfg
+	sed -i "s|UBUNTU_VM_DIR|${UBUNTU_VM_DIR}|g" ${UBUNTU_VM_DIR}/nvme$(dev_no).cfg
+	sed -i "s|_DEVICE_NUMBER_|${dev_no}|g" ${UBUNTU_VM_DIR}/nvme$(dev_no).cfg
+	sed -i "s|_DEVICE_BLOCK_SIZE_|${lba_size}|g" ${UBUNTU_VM_DIR}/nvme$(dev_no).cfg
+}
+
 setup_ubuntu_vm() {
 	local ubuntu_image=ubuntu-24.04-minimal-cloudimg-amd64.img
 
@@ -356,9 +372,9 @@ setup_ubuntu_vm() {
 	qemu-img resize ${UBUNTU_VM_DIR}/backing.qcow2 12G
 	#this can be reused for resizeing as well in future
 
-	qemu-img create -f qcow2 ${UBUNTU_VM_DIR}/nvm.qcow2 1G
-	cp ${SCRIPT_DIR}/config_files/vm-nvme.cfg ${UBUNTU_VM_DIR}/nvme.cfg
-	sed -i "s|UBUNTU_VM_DIR|${UBUNTU_VM_DIR}|g" ${UBUNTU_VM_DIR}/nvme.cfg
+	create_nvme_images 0 512
+	create_nvme_images 1 4096
+
 	sudo usermod -aG kvm "$(whoami)"
 	sudo chmod +666 /dev/kvm
 	# sudo usermod -aG libvirtd "$(whoami)"
