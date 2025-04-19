@@ -23,6 +23,7 @@ usage() {
 		qemu		: Update qemu build.\n\t
 		ubuntu_vm	: Create a ubuntu vm.\n\t
 		nvme		: Update nvme-cli.\n\t
+		liburing	: Update liburing.\n\t
 		get_src		: Get source code for Linux, fio.\n\t
 		revealjs	: revealjs setup.\n\t
 		help		: help.\n\n
@@ -429,8 +430,16 @@ setup_nvmecli() {
 }
 
 setup_nvme() {
-	# setup_libnvme
+	setup_libnvme
 	setup_nvmecli
+}
+
+setup_liburing() {
+	if [ ! -d "$TOOL_DIR/liburing" ]; then
+		cd $TOOL_DIR
+		echo "Cloning liburing"
+		git clone https://git.kernel.org/pub/scm/linux/kernel/git/axboe/liburing.git
+	fi
 }
 
 get_revealjs() {
@@ -486,6 +495,9 @@ setup() {
 			;;
 		nvme )
 			setup_nvme
+			;;
+		liburing )
+			setup_liburing
 			;;
 		revealjs )
 			get_revealjs
