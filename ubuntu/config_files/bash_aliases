@@ -12,8 +12,9 @@ alias vimdiff="nvim -d"
 alias aptin="sudo apt install -y"
 alias aptcs="sudo apt-cache search"
 alias aptup="sudo apt update -y && sudo apt upgrade -y"
+alias aptrm="sudo apt remove -y"
 
-alias mymutt="cdl && neomutt -F ~/.lkml/muttrc"
+alias mymutt="cdl && neomutt -d 2 -F ~/.lkml/muttrc"
 
 alias cdl="cd ~/src/linux-block"
 alias cdf="cd ~/src/fio"

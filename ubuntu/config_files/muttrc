@@ -13,7 +13,9 @@ set from = "user_email@gmail.com"
 set realname = "first_name second_name"
 # set imap_user = "user_email@gmail.com"
 set smtp_url = "smtps://user_email@smtp.gmail.com:465/"
-set smtp_pass = "smtp_secret"
+set smtp_url = "smtp://user_email@smtp.gmail.com:587/"
+#you need app password from google for this is a 16 digit password
+set smtp_pass = smtp_secret
 set ssl_starttls = yes
 set ssl_force_tls = yes
 

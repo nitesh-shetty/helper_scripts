@@ -18,6 +18,7 @@ usage() {
 		tmux		: Update tmux.\n\t
 		fio		: Update fio.\n\t
 		date		: Update date and time.\n\t
+		neomutt		: Update neomutt.\n\t
 		lei		: Update lei.\n\t
 		qemu		: Update qemu build.\n\t
 		ubuntu_vm	: Create a ubuntu vm.\n\t
@@ -180,6 +181,27 @@ update_date() {
 	sudo timedatectl set-timezone Asia/Kolkata
 	sudo date --set="$date $time"
 	sudo hwclock --systohc
+}
+
+# We need to install neomutt, because sometimes we can't get sasl with
+# apt install neovim, yet to be fully functional,
+# because found a working method with prebuilt neomutt
+update_neomutt() {
+	if [ -d "${TOOL_DIR}/neomutt" ]; then
+		echo "Updating neomutt"
+		cd ${TOOL_DIR}/neomutt
+		git pull
+	else
+		echo "Cloning neomutt"
+		cd ${TOOL_DIR}
+		git clone https://github.com/neomutt/neomutt.git
+		sudo apt install -y xsltproc libgpgme-dev libsasl2-dev liblua5.3-dev \
+			libsqlite3-dev libidn2-dev libgnutls28-dev krb5-config
+	fi
+
+	./configure --autocrypt --disable-doc --with-lock=fcntl --gnutls --sasl --gpgme --gss --lua --pcre2 --sqlite
+	make
+	sudo make install
 }
 
 update_lei() {
@@ -446,6 +468,9 @@ setup() {
 			;;
 		date )
 			update_date
+			;;
+		neomutt )
+			update_neomutt
 			;;
 		lei )
 			update_lei
