@@ -143,11 +143,11 @@ update_tmux() {
 	if ! command -v tmux &> /dev/null ; then
 		sudo apt install tmux -y
 	fi
-	if [ -d "${HOME}/.tmux/plugins/tpm" ]; then
-		cd ~/.tmux/plugins/tpm
+	if [ -d "${HOME}/.tmux/tpm" ]; then
+		cd ~/.tmux/tpm
 		git pull
 	else
-		git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugin/tpm
+		git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 	fi
 	if [ -d "${TOOL_DIR}/dotfiles" ]; then
 		cd ${TOOL_DIR}/dotfiles
