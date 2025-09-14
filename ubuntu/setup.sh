@@ -341,11 +341,11 @@ create_nvme_images() {
 	local dev_no=$1
 	local lba_size=$2
 
-	qemu-img create -f qcow2 ${UBUNTU_VM_DIR}/nvme$(dev_no).qcow2 1G
-	cp ${SCRIPT_DIR}/config_files/vm-nvme.cfg ${UBUNTU_VM_DIR}/nvme$(dev_no).cfg
-	sed -i "s|UBUNTU_VM_DIR|${UBUNTU_VM_DIR}|g" ${UBUNTU_VM_DIR}/nvme$(dev_no).cfg
-	sed -i "s|_DEVICE_NUMBER_|${dev_no}|g" ${UBUNTU_VM_DIR}/nvme$(dev_no).cfg
-	sed -i "s|_DEVICE_BLOCK_SIZE_|${lba_size}|g" ${UBUNTU_VM_DIR}/nvme$(dev_no).cfg
+	qemu-img create -f qcow2 ${UBUNTU_VM_DIR}/nvme${dev_no}.qcow2 1G
+	cp ${SCRIPT_DIR}/config_files/vm-nvme.cfg ${UBUNTU_VM_DIR}/nvme${dev_no}.cfg
+	sed -i "s|UBUNTU_VM_DIR|${UBUNTU_VM_DIR}|g" ${UBUNTU_VM_DIR}/nvme${dev_no}.cfg
+	sed -i "s|_DEVICE_NUMBER_|${dev_no}|g" ${UBUNTU_VM_DIR}/nvme${dev_no}.cfg
+	sed -i "s|_DEVICE_BLOCK_SIZE_|${lba_size}|g" ${UBUNTU_VM_DIR}/nvme${dev_no}.cfg
 }
 
 setup_ubuntu_vm() {
@@ -475,9 +475,11 @@ setup() {
 		usage
 		return 1
 	fi	
+	local subcmd="$1"; shift
 
 	create_dir
-	local subcmd="$1"; shift
+	parse_options $@
+
 	case "$subcmd" in
 		alias )
 			update_alias
@@ -528,6 +530,15 @@ setup() {
 			usage
 			;;
 	esac
+}
+
+parse_options() {
+	while getopts "hv" opt; do
+		case $opt in
+			v ) set -x;;
+			h ) usage;;
+		esac
+	done
 }
 
 setup $@
