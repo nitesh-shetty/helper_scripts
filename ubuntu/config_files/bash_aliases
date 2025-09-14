@@ -28,6 +28,10 @@ alias kernel_recompile_install="time kernel_recompile_install"
 
 DUMP_DIR=${HOME}/dump
 
+function blog_compile() {
+	bundle exec jekyll build -d docs
+}
+
 function host_mnt() {
 	set -e
 	mod_dir=/lib/modules/$(uname -r)
