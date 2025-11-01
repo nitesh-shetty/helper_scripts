@@ -18,9 +18,9 @@ alias mymutt="cdl && neomutt -d 2 -F ~/.lkml/muttrc"
 
 alias cdl="cd ~/src/linux-block"
 alias cdf="cd ~/src/fio"
-alias cdh="cd ${HOME}/src/tools/helper_scripts"
-alias cdhu="cd ${HOME}/src/tools/helper_scripts/ubuntu"
-alias cdlu="cd ${HOME}/src/tools/liburing"
+alias cdh="cd ${HOME}/src/public/helper_scripts"
+alias cdhu="cd ${HOME}/src/public/helper_scripts/ubuntu"
+alias cdlu="cd ${HOME}/src/public/liburing"
 
 alias kernel_compile_install="time kernel_compile_install"
 alias kernel_recompile_install="time kernel_recompile_install"
