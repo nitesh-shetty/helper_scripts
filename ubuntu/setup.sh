@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-TOOL_DIR="$HOME/src/tools"
+TOOL_DIR="$HOME/src/public"
 DUMP_DIR="$HOME/dump"
 SCRIPT_DIR="$(pwd)"
 UBUNTU_VM_DIR="${HOME}/ubuntu_vm"
@@ -26,10 +26,13 @@ usage() {
 		liburing	: Update liburing.\n\t
 		get_src		: Get source code for Linux, fio.\n\t
 		revealjs	: revealjs setup.\n\t
+		nvidia_gpu	: nvidia gpu open kernel module installation.\n\t
 		help		: help.\n\n
 	Sample: usage\n\t
 	$0 nvim\n\t
-	$0 nvme -v\n"
+	$0 nvme -v\n\t
+	$0 nvidia_gpu \n\t
+	$0 nvidia_gpu -s 580.76.05\n"
 	echo -ne $USAGE
 }
 
@@ -143,8 +146,8 @@ update_tmux() {
 	if ! command -v tmux &> /dev/null ; then
 		sudo apt install tmux -y
 	fi
-	if [ -d "${HOME}/.tmux/tpm" ]; then
-		cd ~/.tmux/tpm
+	if [ -d "${HOME}/.tmux/plugins/tpm" ]; then
+		cd ~/.tmux/plugins/tpm
 		git pull
 	else
 		git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
@@ -470,17 +473,48 @@ get_revealjs() {
 	npm start
 }
 
+nvidia_gpu() {
+	local driver_version=${1:-'570.195.03'}
+	local tool=nvdia-$driver_version
+	local src_dir=${TOOL_DIR}/$tool
+
+	if [ -d "${src_dir}" ]; then
+		echo "Updating $tool"
+		cd $src_dir
+		sudo git checkout main
+		sudo git pull
+		sudo git checkout $driver_version
+	else
+		echo "Cloning $tool"
+		sudo git clone https://github.com/NVIDIA/open-gpu-kernel-modules.git $src_dir
+		cd $src_dir
+		sudo git checkout $driver_version
+	fi
+	sudo make modules -j$(nproc)
+	sudo make modules_install -j$(nproc)
+}
+
+parse_options() {
+	while getopts "hv" opt; do
+		case $opt in
+			v) set -x;;
+			h) usage;;
+		esac
+	done
+}
+
 setup() {
 	if [[ $# -lt 1 ]]; then
 		usage
 		return 1
 	fi	
-	local subcmd="$1"; shift
+	echo "$0: Start"
 
 	create_dir
+	SUBCMD="$1"; shift
 	parse_options $@
 
-	case "$subcmd" in
+	case "$SUBCMD" in
 		alias )
 			update_alias
 			;;
@@ -520,25 +554,17 @@ setup() {
 		revealjs )
 			get_revealjs
 			;;
+		nvidia_gpu )
+			nvidia_gpu
+			;;
 		test )
-			local lkml_dir=${HOME}/.lkml
-			lei q -I https://lore.kernel.org/all -o ${lkml_dir}/mail --threads \
-				--dedupe=mid \
-				'(tc:linux-nvme OR tc:linux-block OR tc:linux-fsdevel OR tc:io-uring) AND rt:1.days.ago..'
+			echo "test"
 			;;
 		* )
 			usage
 			;;
 	esac
-}
-
-parse_options() {
-	while getopts "hv" opt; do
-		case $opt in
-			v ) set -x;;
-			h ) usage;;
-		esac
-	done
+	echo "$0: Success !!"
 }
 
 setup $@
