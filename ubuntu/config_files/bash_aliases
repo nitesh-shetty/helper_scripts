@@ -169,6 +169,22 @@ function lkml_mutt() {
 	neomutt -F ~/.mail/lore/muttrc
 }
 
+function reinsert_nvidia() {
+	sudo modprobe -r nvidia-drm
+	sudo modprobe -r nvidia-uvm
+	sudo modprobe -r nvidia-modeset
+	sudo modprobe -r nvidia
+	lsmod | grep nvidia
+	sudo modprobe ecdh_generic
+	sudo modprobe ecc
+	cd ~/src/public/open-gpu-kernel-modules/kernel-open/
+	sudo insmod nvidia.ko
+	sudo insmod nvidia-uvm.ko
+	# sudo insmod nvidia-modeset.ko
+	# sudo insmod nvidia-drm.ko
+	lsmod | grep nvidia
+}
+
 PATH=$HOME/bin:/usr/local/cuda-13.0/bin:$PATH
 
 if [ -e /usr/share/bash-completion/completions/git ]; then
