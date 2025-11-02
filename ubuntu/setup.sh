@@ -7,6 +7,9 @@ SCRIPT_DIR="$(pwd)"
 UBUNTU_VM_DIR="${HOME}/ubuntu_vm"
 SRC_DIR="$HOME/src"
 
+DEFAULT_NVIDIA_GPU_DRIVER="570.195.03"
+DEFAULT_NVIDIA_CUDA="13.0.2_580.95.05"
+
 usage() {
 	USAGE="$0 command [OPTIONS..]\n\n
 
@@ -26,11 +29,18 @@ usage() {
 		liburing	: Update liburing.\n\t
 		get_src		: Get source code for Linux, fio.\n\t
 		revealjs	: revealjs setup.\n\t
-		nvidia_gpu	: nvidia gpu open kernel module installation.\n\t
+		nvidia_cuda	: nvidia cuda installation(Default: $DEFAULT_NVIDIA_CUDA)\n\t
+		nvidia_gpu	: nvidia gpu open kernel module installation(Default: $DEFAULT_NVIDIA_GPU_DRIVER)\n\t
 		help		: help.\n\n
+	options:\n\t
+		t		: tool version\n\t
+		h		: help\n\t
+		v		: verbose\n\n
 	Sample: usage\n\t
 	$0 nvim\n\t
 	$0 nvme -v\n\t
+	$0 nvidia_cuda \n\t
+	$0 nvidia_cuda -s 13.0.2_580.95.05\n\t
 	$0 nvidia_gpu \n\t
 	$0 nvidia_gpu -s 580.76.05\n"
 	echo -ne $USAGE
@@ -473,9 +483,19 @@ get_revealjs() {
 	npm start
 }
 
+nvidia_cuda() {
+	local cuda_installer=cuda_${TOOL_VERSION}_linux.run
+
+	cd $TOOL_DIR
+	#TODO: need to test for other cuda version, because this might be specific to 13.0.2
+	if [ ! -f "$cuda_installer" ]; then
+		wget wget https://developer.download.nvidia.com/compute/cuda/13.0.2/local_installers/$cuda_installer
+	fi
+	sudo sh $cuda_installer
+}
+
 nvidia_gpu() {
-	local driver_version=${1:-'570.195.03'}
-	local tool=nvdia-$driver_version
+	local tool=nvdia-${TOOL_VERSION}
 	local src_dir=${TOOL_DIR}/$tool
 
 	if [ -d "${src_dir}" ]; then
@@ -483,24 +503,56 @@ nvidia_gpu() {
 		cd $src_dir
 		sudo git checkout main
 		sudo git pull
-		sudo git checkout $driver_version
+		sudo git checkout $TOOL_VERSION
 	else
 		echo "Cloning $tool"
 		sudo git clone https://github.com/NVIDIA/open-gpu-kernel-modules.git $src_dir
 		cd $src_dir
-		sudo git checkout $driver_version
+		sudo git checkout $TOOL_VERSION
 	fi
 	sudo make modules -j$(nproc)
 	sudo make modules_install -j$(nproc)
 }
 
+nvidia_remove_tools_all() {
+	# sudo systemctl stop gdm
+	if lsmod | grep -wq nvidia_drm; then
+		sudo modprobe -r nvidia_drm
+	fi
+	if lsmod | grep -wq nvidia_modeset; then
+		sudo modprobe -r nvidia_modeset
+	fi
+	if lsmod | grep -wq nvidia; then
+		sudo modprobe -r nvidia
+	fi
+
+	sudo apt remove --purge -y nvidia-* libnvidia-*
+	sudo apt remove --purge -y "*cuda*" "*cublas*" "*cufft*" "*curand*" "*cusolver*"
+	sudo apt remove --purge -y "*cusparse*" "*npp*" "*nvjpeg*" "nsight*" "*nvvm*"
+	sudo apt remove --purge -y "*gds-tools*" "*cufile*"
+	sudo apt autoremove --purge
+	sudo apt update
+	# sudo /usr/local/cuda/bin/cuda-uninstaller
+	# sudo nvidia-uninstall
+}
+
 parse_options() {
-	while getopts "hv" opt; do
+	if [ "$SUBCMD" == "nvidia_cuda" ] || [ "$SUBCMD" == "test" ]; then
+		TOOL_VERSION=$DEFAULT_NVIDIA_CUDA
+	elif [ "$SUBCMD" == "nvidia_gpu" ]; then
+		TOOL_VERSION=$DEFAULT_NVIDIA_GPU_DRIVER
+	fi
+
+	while getopts "hvt:" opt; do
 		case $opt in
 			v) set -x;;
 			h) usage;;
+			t) TOOL_VERSION="$OPTARG";;
 		esac
 	done
+	if [ "$SUBCMD" == "nvidia_cuda" ] || [ "$SUBCMD" == "nvidia_gpu" ]; then
+		echo "tools verson: $TOOL_VERSION"
+	fi
 }
 
 setup() {
@@ -554,11 +606,15 @@ setup() {
 		revealjs )
 			get_revealjs
 			;;
+		nvidia_cuda )
+			nvidia_cuda
+			;;
 		nvidia_gpu )
 			nvidia_gpu
 			;;
 		test )
 			echo "test"
+			nvidia_remove_tools_all
 			;;
 		* )
 			usage
