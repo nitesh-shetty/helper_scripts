@@ -169,7 +169,7 @@ function lkml_mutt() {
 	neomutt -F ~/.mail/lore/muttrc
 }
 
-PATH=$HOME/bin:$PATH
+PATH=$HOME/bin:/usr/local/cuda-12.8/bin:$PATH
 
 if [ -e /usr/share/bash-completion/completions/git ]; then
 	source /usr/share/bash-completion/completions/git
