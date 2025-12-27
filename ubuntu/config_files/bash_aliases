@@ -32,6 +32,15 @@ function blog_compile() {
 	bundle exec jekyll build -d docs
 }
 
+function blog_clean() {
+	bundle exec jekyll clean
+}
+
+function blog_recompile() {
+	blog_clean
+	blog_compile
+}
+
 function host_mnt() {
 	set -e
 	mod_dir=/lib/modules/$(uname -r)
