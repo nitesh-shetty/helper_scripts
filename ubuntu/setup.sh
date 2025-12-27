@@ -146,6 +146,7 @@ update_nvim() {
 	check_create_link ${TOOL_DIR}/dotfiles/vim_options.lua ~/.config/nvim/lua/custom/plugins/vim_options.lua
 	check_create_link ${TOOL_DIR}/dotfiles/tmux_navigator.lua ~/.config/nvim/lua/custom/plugins/tmux_navigator.lua
 	check_create_link ${TOOL_DIR}/dotfiles/vimtex.lua ~/.config/nvim/lua/custom/plugins/vimtex.lua
+	check_create_link ${TOOL_DIR}/dotfiles/autocmd.lua ~/.config/nvim/lua/custom/plugins/autocmd.lua
 	git config --global core.editor "nvim"
 	sudo update-alternatives --install /usr/bin/editor editor $(which nvim) 10
 	update_npm
@@ -211,6 +212,7 @@ update_neomutt() {
 		git clone https://github.com/neomutt/neomutt.git
 		sudo apt install -y xsltproc libgpgme-dev libsasl2-dev liblua5.3-dev \
 			libsqlite3-dev libidn2-dev libgnutls28-dev krb5-config
+		cd ${TOOL_DIR}/neomutt
 	fi
 
 	./configure --autocrypt --disable-doc --with-lock=fcntl --gnutls --sasl --gpgme --gss --lua --pcre2 --sqlite
