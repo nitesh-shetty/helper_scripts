@@ -16,17 +16,19 @@ alias aptrm="sudo apt remove -y"
 
 alias mymutt="cdl && neomutt -d 2 -F ~/.lkml/muttrc"
 
-alias cdl="cd ~/src/linux-block"
-alias cdf="cd ~/src/fio"
-alias cdh="cd ${HOME}/src/public/helper_scripts"
-alias cdhu="cd ${HOME}/src/public/helper_scripts/ubuntu"
-alias cdlu="cd ${HOME}/src/public/liburing"
+SRC_PUB="${HOME}/src/public"
+DUMP_DIR=${HOME}/dump
+
+alias cdl="cd ${SRC_PUB}/linux"
+alias cdf="cd ${SRC_PUB}/fio"
+alias cdh="cd ${SRC_PUB}/helper_scripts"
+alias cdhu="cd ${SRC_PUB}/helper_scripts/ubuntu"
+alias cdlu="cd ${SRC_PUB}/src/public/liburing"
 
 alias kernel_compile_install="time kernel_compile_install"
 alias kernel_recompile_install="time kernel_recompile_install"
 # export NOTMUCH_CONFIG=$HOME/.lkml/notmuch.rc
 
-DUMP_DIR=${HOME}/dump
 
 function blog_compile() {
 	bundle exec jekyll build -d docs

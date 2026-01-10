@@ -1,11 +1,10 @@
 #!/bin/bash
 set -eu
 
-TOOL_DIR="$HOME/src/public"
+SRC_PUB="$HOME/src/public"
 DUMP_DIR="$HOME/dump"
 SCRIPT_DIR="$(pwd)"
 UBUNTU_VM_DIR="${HOME}/ubuntu_vm"
-SRC_DIR="$HOME/src"
 
 DEFAULT_NVIDIA_GPU_DRIVER="570.195.03"
 DEFAULT_NVIDIA_CUDA="13.0.2_580.95.05"
@@ -47,8 +46,8 @@ usage() {
 }
 
 create_dir() {
-	if [ ! -d "${TOOL_DIR}" ]; then
-		mkdir -p ${TOOL_DIR}
+	if [ ! -d "${SRC_PUB}" ]; then
+		mkdir -p ${SRC_PUB}
 	fi
 	if [ ! -d "${DUMP_DIR}" ]; then
 		mkdir -p ${DUMP_DIR}
@@ -102,14 +101,14 @@ update_nvim() {
 
 	if ! command -v nvim &> /dev/null ; then
 		echo "neovim could not be found, installing now.."
-		cd $TOOL_DIR
+		cd $SRC_PUB
 		sudo apt install git ninja-build gettext cmake -y
 		sudo apt install unzip curl fonts-powerline ripgrep -y
 		sudo apt install locales-all -y
 	fi
 	
-	cd $TOOL_DIR
-	if [ -d "${TOOL_DIR}/neovim" ]; then
+	cd $SRC_PUB
+	if [ -d "${SRC_PUB}/neovim" ]; then
 		cd neovim
 		git pull
 	else
@@ -125,16 +124,16 @@ update_nvim() {
 		git stash
 		git pull
 	else
-		cd $TOOL_DIR
+		cd $SRC_PUB
 		git clone https://github.com/nvim-lua/kickstart.nvim.git ~/.config/nvim
 	fi
 
-	cd $TOOL_DIR
-	if [ -d "${TOOL_DIR}/dotfiles" ]; then
-		cd ${TOOL_DIR}/dotfiles
+	cd $SRC_PUB
+	if [ -d "${SRC_PUB}/dotfiles" ]; then
+		cd ${SRC_PUB}/dotfiles
 		git pull
 	else
-		cd ${TOOL_DIR}
+		cd ${SRC_PUB}
 		git clone https://github.com/nitesh-shetty/dotfiles.git
 	fi
 	
@@ -143,10 +142,10 @@ update_nvim() {
 			sed -i "s|nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documnetation')|-- nmap('<C-K>', vim.lsp.vuf.signature_help, 'Signature Documentation')|g" \
 				${HOME}/.config/nvim/init.lua
 
-	check_create_link ${TOOL_DIR}/dotfiles/vim_options.lua ~/.config/nvim/lua/custom/plugins/vim_options.lua
-	check_create_link ${TOOL_DIR}/dotfiles/tmux_navigator.lua ~/.config/nvim/lua/custom/plugins/tmux_navigator.lua
-	check_create_link ${TOOL_DIR}/dotfiles/vimtex.lua ~/.config/nvim/lua/custom/plugins/vimtex.lua
-	check_create_link ${TOOL_DIR}/dotfiles/autocmd.lua ~/.config/nvim/lua/custom/plugins/autocmd.lua
+	check_create_link ${SRC_PUB}/dotfiles/vim_options.lua ~/.config/nvim/lua/custom/plugins/vim_options.lua
+	check_create_link ${SRC_PUB}/dotfiles/tmux_navigator.lua ~/.config/nvim/lua/custom/plugins/tmux_navigator.lua
+	check_create_link ${SRC_PUB}/dotfiles/vimtex.lua ~/.config/nvim/lua/custom/plugins/vimtex.lua
+	check_create_link ${SRC_PUB}/dotfiles/autocmd.lua ~/.config/nvim/lua/custom/plugins/autocmd.lua
 	git config --global core.editor "nvim"
 	sudo update-alternatives --install /usr/bin/editor editor $(which nvim) 10
 	update_npm
@@ -163,23 +162,22 @@ update_tmux() {
 	else
 		git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 	fi
-	if [ -d "${TOOL_DIR}/dotfiles" ]; then
-		cd ${TOOL_DIR}/dotfiles
+	if [ -d "${SRC_PUB}/dotfiles" ]; then
+		cd ${SRC_PUB}/dotfiles
 		git pull
 	else
-		cd $TOOL_DIR
+		cd $SRC_PUB
 		git clone https://github.com/nitesh-shetty/dotfiles.git
 	fi
-	check_create_link ${TOOL_DIR}/dotfiles/tmux.conf ~/.tmux.conf
+	check_create_link ${SRC_PUB}/dotfiles/tmux.conf ~/.tmux.conf
 }
 
 update_fio() {
-	if [ -d "${HOME}/src/fio" ]; then
-		cd ${HOME}/src/fio
+	if [ -d "${SRC_PUB}/fio" ]; then
+		cd ${SRC_PUB}/fio
 		git pull
 	else
-		mkdir -p ${HOME}/src
-		cd ${HOME}/src
+		mkdir -p ${SRC_PUB}/
 		git clone https://github.com/axboe/fio.git
 		cd fio
 	fi
@@ -202,17 +200,17 @@ update_date() {
 # apt install neovim, yet to be fully functional,
 # because found a working method with prebuilt neomutt
 update_neomutt() {
-	if [ -d "${TOOL_DIR}/neomutt" ]; then
+	if [ -d "${SRC_PUB}/neomutt" ]; then
 		echo "Updating neomutt"
-		cd ${TOOL_DIR}/neomutt
+		cd ${SRC_PUB}/neomutt
 		git pull
 	else
 		echo "Cloning neomutt"
-		cd ${TOOL_DIR}
+		cd ${SRC_PUB}
 		git clone https://github.com/neomutt/neomutt.git
 		sudo apt install -y xsltproc libgpgme-dev libsasl2-dev liblua5.3-dev \
 			libsqlite3-dev libidn2-dev libgnutls28-dev krb5-config
-		cd ${TOOL_DIR}/neomutt
+		cd ${SRC_PUB}/neomutt
 	fi
 
 	./configure --autocrypt --disable-doc --with-lock=fcntl --gnutls --sasl --gpgme --gss --lua --pcre2 --sqlite
@@ -240,7 +238,7 @@ update_lei() {
 		sudo apt install procmail -y
 		# pip install keyring
 		sudo apt install python3-keyring
-		cd ${TOOL_DIR}
+		cd ${SRC_PUB}
 		# git clone https://public-inbox.org/public-inbox.git
 		cd public-inbox
 		perl Makefile.PL
@@ -327,21 +325,21 @@ update_lei() {
 setup_qemu() {
 	local ubuntu_image=ubuntu-24.04-minimal-cloudimg-amd64.img
 
-	if [ -d "${TOOL_DIR}/qemu" ]; then
+	if [ -d "${SRC_PUB}/qemu" ]; then
 		echo "Updating Qemu"
-		cd ${TOOL_DIR}/qemu
+		cd ${SRC_PUB}/qemu
 		git pull
 	else
 		echo "Cloning Qemu"
-		cd ${TOOL_DIR}
+		cd ${SRC_PUB}
 		git clone https://gitlab.com/qemu-project/qemu.git
 		sudo apt install -y libslirp-dev libglib2.0-dev
 	fi
 
-	if [ ! -d "$TOOL_DIR/qemu/build_x86" ]; then
-		mkdir $TOOL_DIR/qemu/build_x86
+	if [ ! -d "$SRC_PUB/qemu/build_x86" ]; then
+		mkdir $SRC_PUB/qemu/build_x86
 	fi
-	cd $TOOL_DIR/qemu/build_x86
+	cd $SRC_PUB/qemu/build_x86
 	../configure --target-list=x86_64-softmmu --enable-slirp --enable-virtfs --enable-kvm
 	make -j$(nproc)
 	sudo make install
@@ -396,17 +394,17 @@ setup_ubuntu_vm() {
 }
 
 get_src_linux() {
-	cd $SRC_DIR
-	if [ ! -d "$SRC_DIR/linux-block" ]; then
+	cd $SRC_PUB
+	if [ ! -d "$SRC_PUB/linux-block" ]; then
 		echo "Cloning Linux"
-		git clone https://git.kernel.org/pub/scm/linux/kernel/git/axboe/linux-block.git
+		git clone https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
 		sudo apt install -y libncurses5-dev gcc make exuberant-ctags git bc flex bison libssl-dev pahole libelf-dev rsync
 	fi
 }
 
 get_src_fio() {
-	cd $SRC_DIR
-	if [ ! -d "$SRC_DIR/fio" ]; then
+	cd $SRC_PUB
+	if [ ! -d "$SRC_PUB/fio" ]; then
 		echo "Cloning Fio"
 		git clone https://github.com/axboe/fio.git
 	fi
@@ -418,16 +416,16 @@ get_src() {
 }
 
 setup_libnvme() {
-	if [ -d "${TOOL_DIR}/libnvme" ]; then
+	if [ -d "${SRC_PUB}/libnvme" ]; then
 		echo "Updating libnvme"
-		cd ${TOOL_DIR}/libnvme
+		cd ${SRC_PUB}/libnvme
 		git pull
 		if [ -d ".build" ]; then
 			rm -rf .build
 		fi
 	else
 		echo "Cloning libnvme"
-		cd ${TOOL_DIR}
+		cd ${SRC_PUB}
 		git clone https://github.com/linux-nvme/libnvme.git
 		cd libnvme
 		sudo apt install -y meson libjson-c-dev openssl libkeyutils-dev \
@@ -441,16 +439,16 @@ setup_libnvme() {
 }
 
 setup_nvmecli() {
-	if [ -d "${TOOL_DIR}/nvme-cli" ]; then
+	if [ -d "${SRC_PUB}/nvme-cli" ]; then
 		echo "Updating nvme-cli"
-		cd ${TOOL_DIR}/nvme-cli
+		cd ${SRC_PUB}/nvme-cli
 		git pull
 		if [ -d ".build" ]; then
 			rm -rf .build
 		fi
 	else
 		echo "Cloning nvme-cli"
-		cd ${TOOL_DIR}
+		cd ${SRC_PUB}
 		git clone https://github.com/linux-nvme/nvme-cli.git
 		cd nvme-cli
 		sudo apt install -y libhugetlbfs-dev
@@ -466,21 +464,21 @@ setup_nvme() {
 }
 
 setup_liburing() {
-	if [ ! -d "$TOOL_DIR/liburing" ]; then
-		cd $TOOL_DIR
+	if [ ! -d "$SRC_PUB/liburing" ]; then
+		cd $SRC_PUB
 		echo "Cloning liburing"
 		git clone https://git.kernel.org/pub/scm/linux/kernel/git/axboe/liburing.git
 	fi
 }
 
 get_revealjs() {
-	if [ ! -d "$TOOL_DIR/reveal.js" ]; then
-		cd $TOOL_DIR
+	if [ ! -d "$SRC_PUB/reveal.js" ]; then
+		cd $SRC_PUB
 		echo "Cloning revealjs"
 		git clone https://github.com/hakimel/reveal.js.git
 		sudo apt install -y gulp
 	fi
-	cd $TOOL_DIR/reveal.js
+	cd $SRC_PUB/reveal.js
 	npm install
 	npm start
 }
@@ -488,7 +486,7 @@ get_revealjs() {
 nvidia_cuda() {
 	local cuda_installer=cuda_${TOOL_VERSION}_linux.run
 
-	cd $TOOL_DIR
+	cd $SRC_PUB
 	#TODO: need to test for other cuda version, because this might be specific to 13.0.2
 	if [ ! -f "$cuda_installer" ]; then
 		wget wget https://developer.download.nvidia.com/compute/cuda/13.0.2/local_installers/$cuda_installer
@@ -498,7 +496,7 @@ nvidia_cuda() {
 
 nvidia_gpu() {
 	local tool=nvdia-${TOOL_VERSION}
-	local src_dir=${TOOL_DIR}/$tool
+	local src_dir=${SRC_PUB}/$tool
 
 	if [ -d "${src_dir}" ]; then
 		echo "Updating $tool"
