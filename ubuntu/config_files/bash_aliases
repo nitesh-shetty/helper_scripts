@@ -130,7 +130,7 @@ function uvm_hl() {
 	local qemu_img=qemu-system-x86_64
 	local backing_image=${HOME}/ubuntu_vm/backing.qcow2
 	local user_data=${HOME}/ubuntu_vm/user-seed.img
-	local kernel=${HOME}/src/linux-block/arch/x86/boot/bzImage
+	local kernel=${HOME}/src/linux/arch/x86/boot/bzImage
 	local virtfs_path=/lib/modules/$(cat $DUMP_DIR/kernel.txt)
 	local virtfs_args="-virtfs local,path=$virtfs_path,mount_tag=host_module,security_model=mapped,readonly"
 	local nvme_cfg=${HOME}/ubuntu_vm/nvme0.cfg
@@ -196,7 +196,9 @@ function reinsert_nvidia() {
 	lsmod | grep nvidia
 }
 
-PATH=$HOME/bin:/usr/local/cuda-13.0/bin:$PATH
+PATH=$PATH:$HOME/bin
+PATH=$PATH:$HOME/.opencode/bin/
+PATH=$PATH:/usr/local/cuda-13.0/bin
 
 if [ -e /usr/share/bash-completion/completions/git ]; then
 	source /usr/share/bash-completion/completions/git
